@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: nerd-code-db-container
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  backend:
+    container_name: nerd-code-backend-api-container
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "3030:3030"
+    volumes:
+      - .:/opt/nerd-code-backend-api-container
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:

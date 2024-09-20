@@ -1,0 +1,15 @@
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+COPY app-api/package*.json ./
+
+RUN npm install
+
+COPY app-api ./
+
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:prod"]
