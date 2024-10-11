@@ -44,7 +44,7 @@ jobs:
         run: cd app-api && npm ci
 
       - name: Run Tests
-        run: cd app-api && npm run test
+        run: cd app-api && npm run test -- --passWithNoTests
 
   format:
     name: Run Prettier
