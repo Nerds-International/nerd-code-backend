@@ -83,3 +83,14 @@ jobs:
 
       - name: Run ESLint
         run: cd app-api && npm run lint
+    build:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Install dependencies
+          run: cd app-api && npm install
+
+        - name: Build Docker image
+          run: docker build
