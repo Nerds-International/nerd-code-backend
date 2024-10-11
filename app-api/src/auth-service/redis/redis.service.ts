@@ -1,6 +1,6 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SessionDto } from 'src/auth/dto/session.dto';
+import { SessionDto } from 'src/auth-service/auth/dto/session.dto';
 import { Cache } from 'cache-manager';
 
 @Injectable()

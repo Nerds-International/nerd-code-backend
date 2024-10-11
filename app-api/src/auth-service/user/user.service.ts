@@ -42,7 +42,7 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  async findOne({ username=null, uuid=null }): Promise<User> {
+  async findOne({ username = null, uuid = null }): Promise<User> {
     if (username) {
       if (!(await this.userExists({ username: username }))) {
         throw new BadRequestException('User does not exist');
