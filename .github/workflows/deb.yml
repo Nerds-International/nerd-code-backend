@@ -3,10 +3,12 @@ name: CI Pipeline for Dev Branch
 on:
   push:
     branches:
-      - [ pipeline, dev ]
+      - pipeline
+      - dev
   pull_request:
     branches:
-      - [ pipeline, dev ]
+      - pipeline
+      - dev
 
 jobs:
   setup:
