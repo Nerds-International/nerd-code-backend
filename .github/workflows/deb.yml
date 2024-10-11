@@ -3,10 +3,10 @@ name: CI Pipeline for Dev Branch
 on:
   push:
     branches:
-      - pipeline
+      - [ pipeline, dev ]
   pull_request:
     branches:
-      - dev
+      - [ pipeline, dev ]
 
 jobs:
   setup:
@@ -61,7 +61,7 @@ jobs:
         run: cd app-api && npm ci
 
       - name: Check Prettier
-        run: cd app-api && npm run format:check
+        run: cd app-api && npm run format
 
   lint:
     name: Run ESLint
