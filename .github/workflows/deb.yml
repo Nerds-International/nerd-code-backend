@@ -94,4 +94,4 @@ jobs:
         run: cd app-api && npm install
 
       - name: Build Docker image
-        run: docker build
+        run: docker compose build
