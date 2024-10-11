@@ -8,7 +8,7 @@ import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../redis/redis.service';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { CreateUserDto } from 'src/auth-service/user/dto/create-user.dto';
 import { TokenPairDto } from './dto/tokenpair.dto';
 import { SessionDto } from './dto/session.dto';
 import { Request } from 'express';
