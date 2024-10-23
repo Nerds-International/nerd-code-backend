@@ -1,45 +1,28 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from './schemas/user.schema';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     if (await this.userExists({ username: createUserDto.username })) {
-      throw new BadRequestException('User already exist');
+      throw new BadRequestException('User already exists');
     }
 
-    const email = createUserDto.email;
-    const userWithSameEmail = await this.userRepository.findOneBy({ email });
-    if (userWithSameEmail) {
-      throw new BadRequestException(
-        'User with this email address already exists',
-      );
-    }
-
-    const user = new User();
-
-    user.email = createUserDto.email;
-    user.firstname = createUserDto.firstname;
-    user.lastname = createUserDto.lastname;
-    user.username = createUserDto.username;
-    user.password = createUserDto.password;
-
-    user.createdAt = new Date();
-
-    return this.userRepository.save(user);
+    const user = new this.userModel(createUserDto);
+    return user.save();
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userModel.find().exec();
   }
 
   async findOne({ username = null, uuid = null }): Promise<User> {
@@ -48,13 +31,13 @@ export class UserService {
         throw new BadRequestException('User does not exist');
       }
 
-      return this.userRepository.findOneBy({ username });
+      return this.userModel.findOne({ username }).exec();
     } else if (uuid) {
       if (!(await this.userExists({ uuid: uuid }))) {
         throw new BadRequestException('User does not exist');
       }
 
-      return this.userRepository.findOneBy({ uuid });
+      return this.userModel.findOne({ uuid }).exec();
     }
   }
 
@@ -63,24 +46,23 @@ export class UserService {
       throw new BadRequestException('User does not exist');
     }
 
-    await this.userRepository.update({ uuid }, updateUserDto);
-    return this.userRepository.findOneBy({ uuid });
+    return this.userModel.findOneAndUpdate({ uuid }, updateUserDto, { new: true }).exec();
   }
 
   async remove(uuid: string): Promise<void> {
     if (!(await this.userExists({ uuid: uuid }))) {
-      throw new BadRequestException('User does not exists');
+      throw new BadRequestException('User does not exist');
     }
 
-    await this.userRepository.delete({ uuid });
+    await this.userModel.deleteOne({ uuid }).exec();
   }
 
   async userExists({ username = null, uuid = null }): Promise<boolean> {
     if (username) {
-      const user = await this.userRepository.findOneBy({ username });
+      const user = await this.userModel.findOne({ username }).exec();
       return user !== null;
     } else if (uuid) {
-      const user = await this.userRepository.findOneBy({ uuid });
+      const user = await this.userModel.findOne({ uuid }).exec();
       return user !== null;
     }
   }

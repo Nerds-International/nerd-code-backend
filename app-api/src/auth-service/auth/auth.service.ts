@@ -14,6 +14,7 @@ import { SessionDto } from './dto/session.dto';
 import { Request } from 'express';
 import { AuthDto } from './dto/auth.dto';
 import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -30,35 +31,28 @@ export class AuthService {
     req: Request,
     createUserDto: CreateUserDto,
   ): Promise<TokenPairDto | null> {
-    // Проверка на наличие зарегистрированного пользователя
     if (
       await this.userService.userExists({ username: createUserDto.username })
     ) {
       throw new BadRequestException('User already exists');
     }
 
-    // Создание нового пользователя в случае, если пользователя с данным именем не существует
     const hashedPassword = await this.hashData(createUserDto.password);
     const newUser = await this.userService.create({
       ...createUserDto,
       password: hashedPassword,
     });
 
-    // Генерация токенов
     const { accessToken, refreshToken, hashedRefreshToken } =
-      await this.getTokens(newUser.uuid, newUser.username);
+      await this.getTokens(newUser.username);
 
-    // Создание сессии и её запись в redis
-    const session: SessionDto = {
-      refreshToken: hashedRefreshToken,
-      userAgent: req.header('User-Agent'),
-      fingerprint: crypto.randomUUID(),
-    };
-    await this.redisService.updateSession(newUser.uuid, session);
+    const sessionId = crypto.randomUUID();
+    await this.redisService.updateSession(sessionId, accessToken);
 
-    this.logger.log(`User with uuid ${newUser.uuid} created successfully`);
+    this.logger.log(`User with username ${newUser.username} created successfully`);
 
     return {
+      sessionId,
       accessToken,
       refreshToken,
     };
@@ -67,7 +61,6 @@ export class AuthService {
   async signIn(req: Request, authDto: AuthDto): Promise<TokenPairDto | null> {
     const user = await this.userService.findOne({ username: authDto.username });
 
-    // Проверка совпадения введённого пароля с действительным
     const isPasswordCorrect = await this.compareData(
       authDto.password,
       user.password,
@@ -77,31 +70,28 @@ export class AuthService {
     }
 
     const { accessToken, refreshToken, hashedRefreshToken } =
-      await this.getTokens(user.uuid, user.username);
+      await this.getTokens(user.username);
 
+    const sessionId = crypto.randomUUID();
     const session: SessionDto = {
+      sessionname: sessionId,
       refreshToken: hashedRefreshToken,
       userAgent: req.header('User-Agent'),
       fingerprint: crypto.randomUUID(),
     };
-    await this.redisService.updateSession(user.uuid, session);
+    await this.redisService.updateSession(sessionId, accessToken);
 
-    this.logger.log(`User with uuid ${user.uuid} signed in successfully`);
+    this.logger.log(`User with username ${user.username} signed in successfully`);
 
     return {
+      sessionId,
       accessToken,
       refreshToken,
     };
   }
 
-  async refreshTokens(uuid: string, rt: string): Promise<TokenPairDto | null> {
-    const user = await this.userService.findOne({ uuid: uuid });
-    if (!user) {
-      throw new BadRequestException('User does not exist');
-    }
-
-    // Получение сессии из хранилища и проверка соответсвия полученного токена с действительным
-    const session = await this.redisService.getSession(user.uuid);
+  async refreshTokens(sessionId: string, rt: string): Promise<TokenPairDto | null> {
+    const session = await this.redisService.getSession(sessionId);
     if (!session.refreshToken) {
       throw new ForbiddenException('Access denied');
     }
@@ -112,38 +102,38 @@ export class AuthService {
     }
 
     const { accessToken, refreshToken, hashedRefreshToken } =
-      await this.getTokens(user.uuid, user.username);
+      await this.getTokens(session.sessionname);
 
     const newSession: SessionDto = {
+      sessionname: sessionId,
       refreshToken: hashedRefreshToken,
       userAgent: session.userAgent,
       fingerprint: crypto.randomUUID(),
     };
-    await this.redisService.updateSession(user.uuid, newSession);
+    await this.redisService.updateSession(sessionId, accessToken);
 
     this.logger.log(
-      `New token pair for user with uuid ${user.uuid} was generated successfully`,
+      `New token pair for user with sessionId ${sessionId} was generated successfully`,
     );
 
     return {
+      sessionId,
       accessToken,
       refreshToken,
     };
   }
 
-  async logOut(uuid: string): Promise<void> {
-    await this.redisService.cleanSession(uuid);
-    this.logger.log(`User with uuid ${uuid} logged out`);
+  async logOut(sessionId: string): Promise<void> {
+    await this.redisService.cleanSession(sessionId);
+    this.logger.log(`User with sessionId ${sessionId} logged out`);
   }
 
-  async getTokens(uuid: string, username: string) {
-    // Генерация новой пары токенов
+  async getTokens(username: string) {
     const timestamp = Date.now();
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: uuid,
-          username,
+          sub: username,
           timestamp,
         },
         {
@@ -154,8 +144,7 @@ export class AuthService {
 
       this.jwtService.signAsync(
         {
-          sub: uuid,
-          username,
+          sub: username,
           timestamp,
         },
         {
