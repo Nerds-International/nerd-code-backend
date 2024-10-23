@@ -43,6 +43,15 @@ services:
     networks:
       - nerd-code-network
 
+  redis:
+    image: redis:7.4.0
+    restart: on-failure
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass A3UEbYaagT
+    volumes:
+      - .:/opt/redis
+
 volumes:
   postgres_data:
 

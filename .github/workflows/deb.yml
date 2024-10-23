@@ -1,0 +1,97 @@
+name: CI Pipeline for Dev Branch
+
+on:
+  push:
+    branches:
+      - pipeline
+      - dev
+  pull_request:
+    branches:
+      - pipeline
+      - dev
+
+jobs:
+  setup:
+    name: Install Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: cd app-api && npm ci
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: cd app-api && npm ci
+
+      - name: Run Tests
+        run: cd app-api && npm run test -- --passWithNoTests
+
+  format:
+    name: Run Prettier
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: cd app-api && npm ci
+
+      - name: Check Prettier
+        run: cd app-api && npm run format
+
+  lint:
+    name: Run ESLint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: cd app-api && npm ci
+
+      - name: Run ESLint
+        run: cd app-api && npm run lint
+    
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: cd app-api && npm install
+
+      - name: Build Docker image
+        run: docker compose build
