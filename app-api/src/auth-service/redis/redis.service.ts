@@ -9,8 +9,8 @@ export class RedisService {
 
   private readonly logger: Logger = new Logger('RedisService');
 
-  async updateSession(uuid: string, session: SessionDto) {
-    const status = await this.cacheManager.set(uuid, session);
+  async updateSession(uuid: string, token: string) {
+    const status = await this.cacheManager.set(uuid, token);
     // if (status) {
     //   this.logger.log(`Session for user ${uuid} updated successfully`);
     // } else {
