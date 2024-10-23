@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@nestjs/config": "^3.3.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/mongoose": "^10.1.0",
+    "argon2": "^0.41.1",
+    "express": "^4.21.1",
+    "mongoose": "^8.7.2",
+    "redis": "^4.7.0"
+  }
+}
