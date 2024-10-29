@@ -3,7 +3,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import { RedisClientOptions } from 'redis';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ttl } from 'src/auth-service/constants';
+import { ttl } from 'src/constants';
 import { RedisService } from './redis.service';
 
 @Module({
