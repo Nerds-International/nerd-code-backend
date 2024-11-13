@@ -17,7 +17,7 @@ export class ForumesController {
     return this.formsService.findAll();
   }
 
-  @Get(':id')
+  @Get(':id/summery')
   findSummary(@Param('id') id: string) {
     return this.formsService.findSummary(id);
   }

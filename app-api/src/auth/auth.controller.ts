@@ -37,6 +37,16 @@ export class AuthController {
     return this.authService.refreshTokens(uuid, refreshToken);
   }
 
+
+  @Post('reset-password')
+  async resetPassword(
+    @Req() req: Request,
+    @Body() authDto: AuthDto,
+  ): Promise<void> {
+    return this.authService.resetPassword(req, authDto);
+  }
+
+
   @UseGuards(AccessTokenGuard)
   @Get('logout')
   logOut(@Req() req: Request) {

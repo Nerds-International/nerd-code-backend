@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UserService {
@@ -27,13 +28,13 @@ export class UserService {
 
   async findOne({ username = null, uuid = null }): Promise<User> {
     if (username) {
-      if (!(await this.userExists({ username: username }))) {
+      if (!(await this.userExists({ username }))) {
         throw new BadRequestException('User does not exist');
       }
 
       return this.userModel.findOne({ username }).exec();
     } else if (uuid) {
-      if (!(await this.userExists({ uuid: uuid }))) {
+      if (!(await this.userExists({ uuid }))) {
         throw new BadRequestException('User does not exist');
       }
 
@@ -41,8 +42,26 @@ export class UserService {
     }
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    console.log(`Searching for user with email: ${email}`);
+    const user = await this.userModel.findOne({ email }).exec();
+    if (!user) {
+      console.log(`User with email ${email} not found.`);
+      throw new BadRequestException('User does not exist');
+    }
+    console.log(`User found: ${user}`);
+    return user;
+  }
+
+  async updatePasswordByEmail(email: string, newPassword: string): Promise<User> {
+    const user = await this.findOneByEmail(email);
+    const hashedPassword = newPassword;
+    user.password = hashedPassword;
+    return user.save();
+  }
+
   async update(uuid: string, updateUserDto: UpdateUserDto): Promise<User> {
-    if (!(await this.userExists({ uuid: uuid }))) {
+    if (!(await this.userExists({ uuid }))) {
       throw new BadRequestException('User does not exist');
     }
 
@@ -50,7 +69,7 @@ export class UserService {
   }
 
   async remove(uuid: string): Promise<void> {
-    if (!(await this.userExists({ uuid: uuid }))) {
+    if (!(await this.userExists({ uuid }))) {
       throw new BadRequestException('User does not exist');
     }
 
@@ -65,5 +84,10 @@ export class UserService {
       const user = await this.userModel.findOne({ uuid }).exec();
       return user !== null;
     }
+  }
+
+  async userExistsByEmail(email: string): Promise<boolean> {
+    const user = await this.userModel.findOne({ email }).exec();
+    return user !== null;
   }
 }

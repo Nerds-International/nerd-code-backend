@@ -59,7 +59,7 @@ export class AuthService {
   }
 
   async signIn(req: Request, authDto: AuthDto): Promise<TokenPairDto | null> {
-    const user = await this.userService.findOne({ username: authDto.username });
+    const user = await this.userService.findOne({ username: authDto.email });
 
     const isPasswordCorrect = await this.compareData(
       authDto.password,
@@ -126,6 +126,13 @@ export class AuthService {
   async logOut(sessionId: string): Promise<void> {
     await this.redisService.cleanSession(sessionId);
     this.logger.log(`User with sessionId ${sessionId} logged out`);
+  }
+
+  async resetPassword(req: Request, authDto: AuthDto): Promise<void> {
+    const email = authDto.email;
+    const hashedPassword = await this.hashData(authDto.password);
+    await this.userService.updatePasswordByEmail(authDto.email, hashedPassword);
+    this.logger.log(`Password updated successfully for user with email ${authDto.email}`);
   }
 
   async getTokens(username: string) {

@@ -5,11 +5,13 @@ services:
     image: mongo:latest
     container_name: nerd-code-db-container
     ports:
-      - "27017:27017"
+      - "27018:27018"
     volumes:
       - mongo_data:/data/db
     env_file:
       - .env
+    sysctls:
+      - net.core.somaxconn=1024
     healthcheck:
       test: ["CMD-SHELL", "mongo --eval 'db.runCommand({ connectionStatus: 1 })'"]
       interval: 10s
@@ -20,6 +22,7 @@ services:
     container_name: nerd-code-backend-api-container
     depends_on:
       - db
+      - redis
     build:
       context: .
       dockerfile: Dockerfile.api
