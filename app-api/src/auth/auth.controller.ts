@@ -1,10 +1,19 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { TokenPairDto } from './dto/tokenpair.dto';
+import { 
+  Body, 
+  Controller, 
+  Get, 
+  Post, 
+  Req, 
+  Res, 
+  UseGuards 
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { TokenPairDto } from './dto/tokenpair.dto';
 import { AuthDto } from './dto/auth.dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -12,44 +21,59 @@ export class AuthController {
 
   @Post('signup')
   async signUp(
-    @Req() req: Request,
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<TokenPairDto | null> {
-    return this.authService.signUp(req, createUserDto);
+    @Body() createUserDto: CreateUserDto
+  ): Promise<TokenPairDto> {
+    return this.authService.signUp(createUserDto);
   }
 
   @Post('signin')
   async signIn(
-    @Req() req: Request,
-    @Body() authDto: AuthDto,
-  ): Promise<TokenPairDto | null> {
-    return this.authService.signIn(req, authDto);
+    @Body() authDto: AuthDto
+  ): Promise<TokenPairDto> {
+    return this.authService.signIn(authDto);
   }
 
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   async refreshTokens(
-    @Req() req: Request,
-    @Body() payload: any,
-  ): Promise<TokenPairDto | null> {
-    const refreshToken = req.user['refreshToken'];
-    const uuid = payload['uuid'];
+    @Req() req: Request
+  ): Promise<TokenPairDto> {
+    const { uuid, refreshToken } = req.body;
     return this.authService.refreshTokens(uuid, refreshToken);
   }
 
-
   @Post('reset-password')
   async resetPassword(
-    @Req() req: Request,
-    @Body() authDto: AuthDto,
+    @Body() authDto: AuthDto
   ): Promise<void> {
-    return this.authService.resetPassword(req, authDto);
-  }
+    const { email, password } = authDto;
 
+    return this.authService.resetPassword({email, password});
+  }
 
   @UseGuards(AccessTokenGuard)
   @Get('logout')
-  logOut(@Req() req: Request) {
-    this.authService.logOut(req.user['sub']);
+  logOut(@Req() req: Request): void {
+    const userId = req.user['sub'];
+    this.authService.logOut(userId);
+  }
+
+  @Get('github')
+  @UseGuards(AuthGuard('github'))
+  githubLogin() {
+  }
+
+  @Get('github/callback')
+  @UseGuards(AuthGuard('github'))
+  async githubCallback(
+    @Req() req: Request, 
+    @Res() res: Response
+  ): Promise<void> {
+    const oAuthUser = req.user;
+    const tokens = await this.authService.validateOAuthUser(oAuthUser);
+
+    res.redirect(
+      `http://localhost:3001/`
+    );
   }
 }

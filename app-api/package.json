@@ -39,6 +39,7 @@
     "jtest": "^0.0.1",
     "mongoose": "^8.7.2",
     "passport": "^0.6.0",
+    "passport-github2": "^0.1.12",
     "passport-jwt": "^4.0.1",
     "redis": "^4.6.7",
     "reflect-metadata": "^0.1.13",

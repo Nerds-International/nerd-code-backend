@@ -14,11 +14,22 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    if (await this.userExists({ username: createUserDto.username })) {
-      throw new BadRequestException('User already exists');
+    const { username, email, password } = createUserDto;
+
+    if (await this.userExistsByEmail(email)) {
+      throw new BadRequestException('User with this email already exists');
     }
 
-    const user = new this.userModel(createUserDto);
+    if (await this.userExists({ username })) {
+      throw new BadRequestException('User with this username already exists');
+    }
+
+    const hashedPassword = await argon2.hash(password);
+    const user = new this.userModel({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
     return user.save();
   }
 
@@ -26,64 +37,68 @@ export class UserService {
     return this.userModel.find().exec();
   }
 
-  async findOne({ username = null, uuid = null }): Promise<User> {
-    if (username) {
-      if (!(await this.userExists({ username }))) {
-        throw new BadRequestException('User does not exist');
-      }
-
-      return this.userModel.findOne({ username }).exec();
-    } else if (uuid) {
-      if (!(await this.userExists({ uuid }))) {
-        throw new BadRequestException('User does not exist');
-      }
-
-      return this.userModel.findOne({ uuid }).exec();
-    }
-  }
-
   async findOneByEmail(email: string): Promise<User> {
-    console.log(`Searching for user with email: ${email}`);
     const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
-      console.log(`User with email ${email} not found.`);
-      throw new BadRequestException('User does not exist');
+      throw new BadRequestException('User with this email does not exist');
     }
-    console.log(`User found: ${user}`);
+    return user;
+  }
+
+  async findByUuid(uuid: string): Promise<User> {
+    const user = await this.userModel.findOne({ uuid }).exec();
+    if (!user) {
+      throw new BadRequestException('User with this UUID does not exist');
+    }
+    return user;
+  }
+
+  async validateUser(email: string, password: string): Promise<User> {
+    const user = await this.findOneByEmail(email);
+    const isPasswordValid = await argon2.verify(user.password, password);
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid email or password');
+    }
+
     return user;
   }
 
   async updatePasswordByEmail(email: string, newPassword: string): Promise<User> {
     const user = await this.findOneByEmail(email);
-    const hashedPassword = newPassword;
+    const hashedPassword = await argon2.hash(newPassword);
     user.password = hashedPassword;
+
     return user.save();
   }
 
-  async update(uuid: string, updateUserDto: UpdateUserDto): Promise<User> {
-    if (!(await this.userExists({ uuid }))) {
+  async updateRefreshToken(userId: string, refreshToken: string) {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) {
       throw new BadRequestException('User does not exist');
     }
-
-    return this.userModel.findOneAndUpdate({ uuid }, updateUserDto, { new: true }).exec();
+    user['refreshToken'] = refreshToken;
+    await user.save();
   }
 
-  async remove(uuid: string): Promise<void> {
-    if (!(await this.userExists({ uuid }))) {
-      throw new BadRequestException('User does not exist');
+  async removeRefreshToken(userId: string) {
+    const user = await this.userModel.findById(userId).exec();
+    if (user) {
+      user['refreshToken'] = null;
+      await user.save();
     }
-
-    await this.userModel.deleteOne({ uuid }).exec();
   }
 
   async userExists({ username = null, uuid = null }): Promise<boolean> {
     if (username) {
       const user = await this.userModel.findOne({ username }).exec();
       return user !== null;
-    } else if (uuid) {
+    }
+    if (uuid) {
       const user = await this.userModel.findOne({ uuid }).exec();
       return user !== null;
     }
+    return false;
   }
 
   async userExistsByEmail(email: string): Promise<boolean> {

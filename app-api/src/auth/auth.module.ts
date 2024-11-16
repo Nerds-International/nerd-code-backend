@@ -6,10 +6,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from 'src/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { RedisModule } from 'src/redis/redis.module';
+import { GithubStrategy } from './github.strategy';
 
 @Module({
   imports: [JwtModule.register({}), UserModule, ConfigModule, RedisModule],
-  providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
+  providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy, GithubStrategy,],
   controllers: [AuthController],
 })
 export class AuthModule {}

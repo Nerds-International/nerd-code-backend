@@ -1,5 +1,5 @@
 export class TokenPairDto {
-  sessionId: string;
+  id: string;
   accessToken: string;
   refreshToken: string;
 }
