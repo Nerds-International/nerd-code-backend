@@ -4,6 +4,8 @@ WORKDIR /usr/src/app
 
 COPY app-api/package*.json ./
 
+COPY import-data.sh ./
+
 RUN npm install
 
 COPY app-api ./

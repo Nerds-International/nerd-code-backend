@@ -1,9 +1,0 @@
-# Dockerfile.mongo
-FROM mongo:latest
-
-# Copy the import script and data file into the container
-COPY import-data.sh /docker-entrypoint-initdb.d/import-data.sh
-COPY data.json /data/data.json
-
-# Make the import script executable
-RUN chmod +x /docker-entrypoint-initdb.d/import-data.sh

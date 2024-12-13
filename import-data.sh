@@ -1,10 +1,20 @@
 #!/bin/bash
 
-# Wait for MongoDB to be ready
-until mongo --eval 'db.runCommand({ connectionStatus: 1 })'; do
-  echo "Waiting for MongoDB to be ready..."
-  sleep 1
-done
-
-# Import data
-mongoimport --host localhost --port 27018 --db your_database_name --collection your_collection_name --file /data/data.json --jsonArray
+curl -X POST http://localhost:3000/tasks \
+-H "Content-Type: application/json" \
+-d '{
+  "title": "Задача по алгоритму сортировки",
+  "description": "Напишите функцию, которая сортирует массив чисел.",
+  "difficulty": "medium",
+  "time_limit": 120,
+  "test_cases": [
+    {
+      "input": "[3, 1, 2]",
+      "expected_output": "[1, 2, 3]"
+    },
+    {
+      "input": "[5, 4, 6]",
+      "expected_output": "[4, 5, 6]"
+    }
+  ]
+}'
