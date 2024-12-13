@@ -61,6 +61,7 @@ export class AuthController {
   @Get('github')
   @UseGuards(AuthGuard('github'))
   githubLogin() {
+    console.log("github auth")
   }
 
   @Get('github/callback')
