@@ -4,6 +4,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './user/schemas/user.schema';
 import { AuthModule } from './auth/auth.module';
+import { TaskModule } from './task/task.module'
+import { FormsModule } from './forumes/forums.module'
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { AuthModule } from './auth/auth.module';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     UserModule,
     AuthModule,
+    TaskModule,
+    FormsModule,
   ],
 })
 export class AppModule {}
