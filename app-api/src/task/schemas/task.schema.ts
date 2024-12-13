@@ -26,6 +26,12 @@ export class Task {
   @Prop({ default: 0 })
   dislikes: number;
 
+  @Prop({ default: 0 })
+  input_type: number;
+
+  @Prop({ default: 0 })
+  output_type: number;
+
   @Prop({ required: true, type: Array })
   test_cases: Array<{ input: string; expected_output: string }>;
 }

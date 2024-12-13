@@ -8,6 +8,8 @@ services:
       - "27018:27018"
     volumes:
       - mongo_data:/data/db
+      - ./data.json:/data/data.json
+      - ./import-data.sh:/docker-entrypoint-initdb.d/import-data.sh
     env_file:
       - .env
     sysctls:
