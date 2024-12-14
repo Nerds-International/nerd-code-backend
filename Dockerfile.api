@@ -4,14 +4,14 @@ WORKDIR /usr/src/app
 
 COPY app-api/package*.json ./
 
-COPY import-data.sh ./
-
 RUN npm install
 
 COPY app-api ./
 
 RUN npm run build
 
+RUN npm install -g migrate-mongo
+
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+CMD ["sh", "-c", "npx migrate-mongo up && npm start"]
