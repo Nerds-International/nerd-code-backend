@@ -1,11 +1,14 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, Query, HttpStatus } from '@nestjs/common';
 import { TaskService } from './task.service';
+import { AttemptService } from './attempt.service';
 import { PythonService } from './python.service';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
+import { CreateAttemptDto } from './dto/attempt.dto';
+import { Attempt } from './schemas/attempt.schema';
 
 @Controller('tasks')
 export class TaskController {
-  constructor(private readonly taskService: TaskService, private readonly pythonService: PythonService) {}
+  constructor(private readonly taskService: TaskService, private readonly pythonService: PythonService, private readonly attemptService: AttemptService) {}
 
   @Post()
   createTask(@Body() createTaskDto: CreateTaskDto) {
@@ -47,5 +50,20 @@ export class TaskController {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  @Post('attempts')
+  async createAttempt(@Body() createAttemptDto: CreateAttemptDto): Promise<Attempt> {
+    return this.attemptService.createAttempt(createAttemptDto);
+  }
+
+  @Get('attempts')
+  async getAllAttempts(): Promise<Attempt[]> {
+    return this.attemptService.getAllAttempt();
+  }
+
+  @Get('attempts/:id')
+  async getAttemptById(@Param('id') id: string): Promise<Attempt> {
+    return this.attemptService.getAttemptById(id);
   }
 }
