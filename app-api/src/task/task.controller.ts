@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, Query, HttpStatus } from '@nestjs/common';
 import { TaskService } from './task.service';
+import { PythonService } from './python.service';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 
 @Controller('tasks')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: TaskService, private readonly pythonService: PythonService) {}
 
   @Post()
   createTask(@Body() createTaskDto: CreateTaskDto) {
@@ -31,8 +32,20 @@ export class TaskController {
     return this.taskService.deleteTask(id);
   }
 
-  @Post('resolve')
-  resolveTasks(resolve: string, id: string) {
-    return Math.random() > 0.5;
+  @Post('execute')
+  async executePython(@Body('code') code: string): Promise<any> {
+    if (!code) {
+      throw new HttpException('Code is required', HttpStatus.BAD_REQUEST);
+    }
+
+    try {
+      const result = await this.pythonService.executeCode(code);
+      return { success: true, result };
+    } catch (error) {
+      throw new HttpException(
+        `Error executing code: ${error.message}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
