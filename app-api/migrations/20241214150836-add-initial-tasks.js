@@ -2,11 +2,12 @@ module.exports = {
   async up(db) {
     await db.collection('tasks').insertMany([
       {
-        _id: "605b4d68b4f3e2b8b8b8b8b8", // Просто строка вместо $oid
+        _id: "605b4d68b4f3e2b8b8b8b8b8",
         title: "Задача по алгоритму сортировки",
-        description: "Напишите функцию, которая сортирует массив чисел.",
+        text: "Напишите функцию, которая сортирует массив чисел.",
+        author: "IlyaAnon228",
         difficulty: "medium",
-        created_at: new Date("2024-10-05T10:00:00Z"), // Преобразование $date в Date
+        created_at: new Date("2024-10-05T10:00:00Z"),
         time_limit: 123,
         likes: 123,
         dislikes: 123,
@@ -26,7 +27,8 @@ module.exports = {
       {
         _id: "605b4d68b4f3e2b8b8b8b8b9",
         title: "Задача по поиску максимального элемента",
-        description: "Напишите функцию, которая находит максимальный элемент в массиве чисел.",
+        text: "Напишите функцию, которая находит максимальный элемент в массиве чисел.",
+        author: "IlyaAnon228",
         difficulty: "easy",
         created_at: new Date("2024-10-06T12:00:00Z"),
         time_limit: 60,

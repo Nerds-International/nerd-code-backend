@@ -9,7 +9,9 @@ export class CreateTaskDto {
 
   title: string;
 
-  description: string;
+  text: string;
+
+  author: string;
 
   difficulty: string;
 
