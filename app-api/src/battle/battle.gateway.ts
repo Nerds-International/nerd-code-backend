@@ -38,7 +38,6 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   @SubscribeMessage('joinBattle')
   async joinBattle(
     @MessageBody() battleId: string,
-    @MessageBody() userId: string,
     @ConnectedSocket() client: Socket,
   ) {
     this.logger.log(`Joining battle with ID: ${battleId}`);

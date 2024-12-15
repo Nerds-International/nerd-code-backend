@@ -5,8 +5,9 @@ import { BattleService } from './battle.service';
 export class BattleController {
   constructor(private readonly battleService: BattleService) {}
 
-  @Get('getBatttlesKeys')
+  @Get('getKeys')
   getAllBattles(@Param('id') id: string): Promise<string> {
+    
     return this.battleService.getAllBattles(id);
   }
 }
