@@ -52,6 +52,6 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     @ConnectedSocket() client: Socket,
   ) {
     this.logger.log(`Syncing code for battle ID: ${data.battleId}`);
-    this.server.to(data.battleId).emit('codeUpdated', { code: data.code });
+    this.server.to(data.battleId).emit('codeUpdated', { code: data.code, id: client.id });
   }
 }
