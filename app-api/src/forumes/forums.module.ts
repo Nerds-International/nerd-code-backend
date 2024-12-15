@@ -9,4 +9,4 @@ import { Forum, FormSchema } from './schemas/forum.schema';
   controllers: [ForumesController],
   providers: [ForumsService],
 })
-export class FormsModule {}
+export class ForumsModule {}

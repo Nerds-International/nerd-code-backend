@@ -8,7 +8,7 @@ import {
   import { Server, Socket } from 'socket.io';
   import { BattleService } from './battle.service';
   
-  @WebSocketGateway({ cors: true })
+  @WebSocketGateway({ cors: false })
   export class BattleGateway {
     @WebSocketServer()
     server: Server;
