@@ -28,6 +28,12 @@ export class RedisService {
   }
 
   async getSession(uuid: string): Promise<SessionDto> {
+    this.cacheManager.store.keys()
     return await this.cacheManager.get(uuid);
+  }
+
+
+  async getKeys(): Promise<string[]> {
+    return await this.cacheManager.store.keys();
   }
 }
