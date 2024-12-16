@@ -42,7 +42,7 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   ) {
     this.logger.log(`Joining battle with ID: ${battleId}`);
     client.join(battleId);
-    this.server.to(battleId).emit('opponentJoined', { battleId });
+    this.server.to(battleId).emit('opponentJoined', { battleId: battleId, id: client.id });
   }
 
   // Обмен кодом между участниками
@@ -53,5 +53,13 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   ) {
     this.logger.log(`Syncing code for battle ID: ${data.battleId}`);
     this.server.to(data.battleId).emit('codeUpdated', { code: data.code, id: client.id });
+  }
+
+  @SubscribeMessage('startMatch')
+  handleStartMatch(
+    @MessageBody() battleId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.server.to(battleId).emit('opponentJoined', { battleId: battleId, id: client.id });
   }
 }
