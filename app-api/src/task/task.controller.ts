@@ -36,21 +36,18 @@ export class TaskController {
   }
 
   @Post('execute')
-  async executePython(@Body('code') code: string): Promise<any> {
-    if (!code) {
-      throw new HttpException('Code is required', HttpStatus.BAD_REQUEST);
-    }
-
-    try {
-      const result = await this.pythonService.executeCode(code);
-      return { success: true, result };
-    } catch (error) {
-      throw new HttpException(
-        `Error executing code: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: { input: string; expected: string }[]) {
+  if (!code || !tests) {
+    throw new HttpException('Code and tests are required', HttpStatus.BAD_REQUEST);
   }
+
+  try {
+    const result = await this.pythonService.executeCodeWithTests(code, tests);
+    return { success: true, result };
+  } catch (error) {
+    throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+  }
+}
 
   @Post('attempts')
   async createAttempt(@Body() createAttemptDto: CreateAttemptDto): Promise<Attempt> {
