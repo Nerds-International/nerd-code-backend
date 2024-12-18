@@ -2,28 +2,48 @@ version: '3.8'
 
 services:
   db:
-    image: postgres:16
+    image: mongo:latest
     container_name: nerd-code-db-container
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongo_data:/data/db
     env_file:
       - .env
+    sysctls:
+      - net.core.somaxconn=1024
+    healthcheck:
+      test: ["CMD-SHELL", "mongo --eval 'db.runCommand({ connectionStatus: 1 })'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     container_name: nerd-code-backend-api-container
     depends_on:
       - db
+      - redis
     build:
       context: .
       dockerfile: Dockerfile.api
     ports:
-      - "3030:3030"
+      - "3000:3000"
     volumes:
       - .:/opt/nerd-code-backend-api-container
     env_file:
       - .env
 
+  redis:
+    image: redis
+    restart: on-failure
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass A3UEbYaagT
+    volumes:
+      - redis:/data
+
 volumes:
-  postgres_data:
+  mongo_data:
+    driver: local
+  redis:
+    driver: local
