@@ -1,4 +1,4 @@
-export class CreateFormDto {
+export class CreateForumDto {
     readonly title: string;
     readonly description: string;
     readonly author_id: string;

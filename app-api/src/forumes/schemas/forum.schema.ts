@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-@Schema()
+@Schema({ collection: 'forums' })
 export class Forum extends Document {
   @Prop()
   title: string;
@@ -34,4 +34,4 @@ export type Comment = {
   created_at: Date;
 };
 
-export const FormSchema = SchemaFactory.createForClass(Forum);
+export const ForumSchema = SchemaFactory.createForClass(Forum);

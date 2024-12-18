@@ -2,16 +2,16 @@ import { Model } from 'mongoose';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Forum } from './schemas/forum.schema';
-import { CreateFormDto } from './dto/create-forum.dto';
-import { ViewFormSummaryDto } from './dto/view-forum-summery.dto';
+import { CreateForumDto } from './dto/create-forum.dto';
+import { ViewForumSummaryDto } from './dto/view-forum-summery.dto';
 import { AddCommentDto } from './dto/add-comment.dto';
 
 @Injectable()
 export class ForumsService {
   constructor(@InjectModel(Forum.name) private formModel: Model<Forum>) {}
 
-  async create(createFormDto: CreateFormDto): Promise<Forum> {
-    const createdForm = new this.formModel(createFormDto);
+  async create(createForumDto: CreateForumDto): Promise<Forum> {
+    const createdForm = new this.formModel(createForumDto);
     return createdForm.save();
   }
 
@@ -23,7 +23,7 @@ export class ForumsService {
     return this.formModel.findByIdAndDelete(id).exec();
   }
 
-  async findSummary(id: string): Promise<ViewFormSummaryDto> {
+  async findSummary(id: string): Promise<ViewForumSummaryDto> {
     const form = await this.formModel.findById(id).exec();
     return {
       id: form.id,

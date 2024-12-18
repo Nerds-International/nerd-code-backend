@@ -1,4 +1,4 @@
-export class ViewFormSummaryDto {
+export class ViewForumSummaryDto {
     readonly id: string;
     readonly title: string;
     readonly author_id: string;

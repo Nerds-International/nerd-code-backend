@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Delete, Param } from '@nestjs/common';
 import { ForumsService } from './forums.service';
-import { CreateFormDto } from './dto/create-forum.dto';
+import { CreateForumDto } from './dto/create-forum.dto';
 import { AddCommentDto } from './dto/add-comment.dto';
 
 @Controller('forums')
@@ -8,7 +8,7 @@ export class ForumesController {
   constructor(private readonly formsService: ForumsService) {}
 
   @Post()
-  create(@Body() createFormDto: CreateFormDto) {
+  create(@Body() createFormDto: CreateForumDto) {
     return this.formsService.create(createFormDto);
   }
 

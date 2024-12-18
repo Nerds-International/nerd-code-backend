@@ -10,8 +10,6 @@ COPY app-api ./
 
 RUN npm run build
 
-RUN npm install -g migrate-mongo
-
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx migrate-mongo up && npm start"]
+CMD ["sh", "-c", "npm start"]

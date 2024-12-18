@@ -4,7 +4,8 @@ curl -X POST http://localhost:3000/tasks \
 -H "Content-Type: application/json" \
 -d '{
   "title": "Задача по алгоритму сортировки",
-  "description": "Напишите функцию, которая сортирует массив чисел.",
+  "text": "Напишите функцию, которая сортирует массив чисел.",
+  "author": "IlyaAnon1488",
   "difficulty": "medium",
   "time_limit": 120,
   "test_cases": [
