@@ -34,7 +34,6 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     this.logger.log(`Client connected: ${client.id}`);
   }
 
-  // Подключение к существующему баттлу
   @SubscribeMessage('joinBattle')
   async joinBattle(
     @MessageBody() battleId: string,
@@ -45,7 +44,6 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     this.server.to(battleId).emit('opponentJoined', { battleId: battleId, id: client.id });
   }
 
-  // Обмен кодом между участниками
   @SubscribeMessage('syncCode')
   handleSyncCode(
     @MessageBody() data: { battleId: string; code: string },
@@ -53,6 +51,15 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   ) {
     this.logger.log(`Syncing code for battle ID: ${data.battleId}`);
     this.server.to(data.battleId).emit('codeUpdated', { code: data.code, id: client.id });
+  }
+
+  @SubscribeMessage('useSkill')
+  handleSkills(
+    @MessageBody() data: { battleId: string; skill_name: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.logger.log(`Used that skill: ${data.skill_name}`);
+    this.server.to(data.skill_name).emit('codeUpdated', { code: data.skill_name, id: client.id });
   }
 
   @SubscribeMessage('startMatch')
