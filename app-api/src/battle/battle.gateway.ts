@@ -59,7 +59,7 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     @ConnectedSocket() client: Socket,
   ) {
     this.logger.log(`Used that skill: ${data.skill_name}`);
-    this.server.to(data.skill_name).emit('codeUpdated', { code: data.skill_name, id: client.id });
+    this.server.to(data.skill_name).emit('useSkill', { code: data.skill_name, id: client.id });
   }
 
   @SubscribeMessage('startMatch')
