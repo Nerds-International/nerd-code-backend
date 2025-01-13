@@ -1,5 +1,7 @@
 export class CreateAttemptDto {
-    description: string;
-    result: string;
+    task_id: String
+    user_id: String
+    language: String
+    time: string;
 }
   

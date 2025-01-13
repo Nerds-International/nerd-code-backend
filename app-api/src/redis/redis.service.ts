@@ -7,10 +7,11 @@ import { Cache } from 'cache-manager';
 export class RedisService {
   constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
-  private readonly logger: Logger = new Logger('RedisService');
-
   async updateSession(uuid: string, token: string) {
+    
+    console.log(123)
     const status = await this.cacheManager.set(uuid, token);
+    console.log(JSON.stringify(status))
     // if (status) {
     //   this.logger.log(`Session for user ${uuid} updated successfully`);
     // } else {

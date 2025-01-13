@@ -15,20 +15,17 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     const { username, email, password } = createUserDto;
-
-    if (await this.userExistsByEmail(email)) {
-      throw new BadRequestException('User with this email already exists');
-    }
-
     if (await this.userExists({ username })) {
       throw new BadRequestException('User with this username already exists');
     }
 
-    const hashedPassword = await argon2.hash(password);
+    const hashedPassword = await argon2.hash(username+email);
     const user = new this.userModel({
       ...createUserDto,
       password: hashedPassword,
     });
+
+    console.log(JSON.stringify(user))
 
     return user.save();
   }
@@ -38,11 +35,23 @@ export class UserService {
   }
 
   async findOneByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email }).exec();
+
+    const users = await this.userModel.find().exec();
+
+    const user= users.find(u => u.email === email);
+
     if (!user) {
       throw new BadRequestException('User with this email does not exist');
     }
     return user;
+  }
+
+  async findOneByEmailBool(email: string): Promise<Boolean> {
+    const user = await this.userModel.findOne({ email }).exec();
+    if (!user) {
+      return false;
+    }
+    return true;
   }
 
   async findByUuid(uuid: string): Promise<User> {
@@ -72,8 +81,9 @@ export class UserService {
     return user.save();
   }
 
-  async updateRefreshToken(userId: string, refreshToken: string) {
-    const user = await this.userModel.findById(userId).exec();
+  async updateRefreshToken(_id: string, refreshToken: string) {
+    const user = await this.userModel.findById(_id).exec();
+
     if (!user) {
       throw new BadRequestException('User does not exist');
     }

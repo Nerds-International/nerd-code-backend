@@ -5,7 +5,8 @@ import {
   Post, 
   Req, 
   Res, 
-  UseGuards 
+  UseGuards ,
+  UnauthorizedException
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -14,10 +15,13 @@ import { TokenPairDto } from './dto/tokenpair.dto';
 import { AuthDto } from './dto/auth.dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { AuthGuard } from '@nestjs/passport';
+import { RedisService } from 'src/redis/redis.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService,
+    private readonly redisService: RedisService
+  ) {}
 
   @Post('signup')
   async signUp(
@@ -38,7 +42,13 @@ export class AuthController {
   async refreshTokens(
     @Req() req: Request
   ): Promise<TokenPairDto> {
-    const { uuid, refreshToken } = req.body;
+
+    const { uuid, refreshToken, accessToken } = req.body;
+
+    if (!uuid || !refreshToken) {
+      throw new UnauthorizedException('UUID and refreshToken are required');
+    }
+
     return this.authService.refreshTokens(uuid, refreshToken);
   }
 
@@ -47,7 +57,6 @@ export class AuthController {
     @Body() authDto: AuthDto
   ): Promise<void> {
     const { email, password } = authDto;
-
     return this.authService.resetPassword({email, password});
   }
 
@@ -72,9 +81,12 @@ export class AuthController {
   ): Promise<void> {
     const oAuthUser = req.user;
     const tokens = await this.authService.validateOAuthUser(oAuthUser);
+    
+    const redirectUrl = new URL('http://localhost:3001/');
+    redirectUrl.searchParams.append('accessToken', tokens.accessToken);
+    redirectUrl.searchParams.append('refreshToken', tokens.refreshToken);
+    redirectUrl.searchParams.append('id', tokens.id);
 
-    res.redirect(
-      `http://localhost:3001/`
-    );
+    res.redirect(redirectUrl.toString());
   }
 }
