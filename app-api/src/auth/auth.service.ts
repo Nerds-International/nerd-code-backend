@@ -79,7 +79,7 @@ export class AuthService {
       return this.generateTokens(await this.userService.findOneByEmail(oAuthUser.email));
     }
 
-    const newUser = await this.userService.create({
+    const newUser = await this.userService.createGithub({
       email: oAuthUser.email,
       username: oAuthUser.username || oAuthUser.email.split('@')[0],
       fullname: oAuthUser.name,

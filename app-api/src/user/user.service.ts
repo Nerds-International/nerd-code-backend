@@ -13,13 +13,30 @@ export class UserService {
     private readonly userModel: Model<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async createGithub(createUserDto: CreateUserDto) {
     const { username, email, password } = createUserDto;
     if (await this.userExists({ username })) {
       throw new BadRequestException('User with this username already exists');
     }
 
     const hashedPassword = await argon2.hash(username+email);
+    const user = new this.userModel({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    console.log(JSON.stringify(user))
+
+    return user.save();
+  }
+
+  async create(createUserDto: CreateUserDto) {
+    const { username, email, password } = createUserDto;
+    if (await this.userExists({ username })) {
+      throw new BadRequestException('User with this username already exists');
+    }
+
+    const hashedPassword = await argon2.hash(password);
     const user = new this.userModel({
       ...createUserDto,
       password: hashedPassword,
@@ -64,6 +81,11 @@ export class UserService {
 
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.findOneByEmail(email);
+
+    console.log(JSON.stringify(user))
+    console.log(password)
+    console.log(await argon2.hash(password))
+
     const isPasswordValid = await argon2.verify(user.password, password);
 
     if (!isPasswordValid) {
