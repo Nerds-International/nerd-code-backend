@@ -1,4 +1,3 @@
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -9,7 +8,7 @@ import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 export class TaskService {
   constructor(
     @InjectModel(Task.name) private readonly taskModel: Model<TaskDocument>,
-  ) {}
+  ) { }
 
   // Создание задачи
   async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
@@ -62,4 +61,18 @@ export class TaskService {
     return { tasks, total };
   }
 
+  // Получение случайной задачи
+  async getRandomTask(): Promise<Task> {
+    const count = await this.taskModel.countDocuments().exec();
+    if (count === 0) {
+      throw new NotFoundException('No tasks found');
+    }
+    const randomIndex = Math.floor(Math.random() * count);
+    const randomTask = await this.taskModel.findOne().skip(randomIndex).exec();
+    if (!randomTask) {
+      throw new NotFoundException('Task not found');
+    }
+
+    return randomTask;
+  }
 }
