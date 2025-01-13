@@ -3,6 +3,7 @@ export class ViewForumSummaryDto {
     readonly title: string;
     readonly author_id: string;
     readonly likes: number;
+    readonly dislikes: number;
     readonly created_at: Date;
 }
   
