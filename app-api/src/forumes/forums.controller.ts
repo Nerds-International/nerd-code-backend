@@ -1,14 +1,17 @@
-import { Body, Controller, Get, Post, Delete, Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Delete, Param, Headers, UnauthorizedException} from '@nestjs/common';
 import { ForumsService } from './forums.service';
 import { CreateForumDto } from './dto/create-forum.dto';
 import { AddCommentDto } from './dto/add-comment.dto';
+import { RedisService } from 'src/redis/redis.service';
+
 
 @Controller('forums')
 export class ForumesController {
-  constructor(private readonly formsService: ForumsService) {}
+  constructor(private readonly formsService: ForumsService, private readonly redisService: RedisService) {}
 
   @Post()
-  create(@Body() createFormDto: CreateForumDto) {
+  create(@Body() createFormDto: CreateForumDto, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
     return this.formsService.create(createFormDto);
   }
 
@@ -18,24 +21,83 @@ export class ForumesController {
   }
 
   @Get(':id/summery')
-  findSummary(@Param('id') id: string) {
+  async findSummary(@Param('id') id: string,
+@Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+    
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
     return this.formsService.findSummary(id);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string) {
+  async delete(@Param('id') id: string,
+  @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+    
+    if (!accessToken || !_id || session!=accessToken){
+      throw new UnauthorizedException('UUID and accessToeken are required');
+    } 
+
     return this.formsService.delete(id);
   }
 
   @Post(':id/comments')
-  addComment(@Param('id') id: string, @Body() addCommentDto: AddCommentDto) {
+  async addComment(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string, @Body() addCommentDto: AddCommentDto) {
     const newCommentDto = { ...addCommentDto, formId: id };
+
+    const session = await this.redisService.getSession(_id);
+    
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
     return this.formsService.addComment(newCommentDto);
   }
 
   @Get(':id')
-  findById(@Param('id') id: string) {
+  async findById(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+    
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
     return this.formsService.findById(id);
+  }
+
+  @Post(':id/like')
+  async like(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    return await this.formsService.like(id);
+  }
+
+  @Post(':id/dislike')
+  async dislike(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    return await this.formsService.dislike(id);
   }
 
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Headers } from '@nestjs/common';
+import { Controller, Get, Param, Headers, UnauthorizedException } from '@nestjs/common';
 import { BattleService } from './battle.service';
 import { RedisService } from 'src/redis/redis.service';
 
@@ -9,15 +9,16 @@ export class BattleController {
   ) {}
 
   @Get('getKeys')
-  getAllBattles(@Param('id') id: string,
+  async getAllBattles(@Param('id') id: string,
   @Headers('accessToken') accessToken: string,
   @Headers('_id') _id: string
 ): Promise<string> {
     
-  const session = this.redisService.getSession(_id);
+  const session = await this.redisService.getSession(_id);
 
-  console.log(_id)
-  console.log(JSON.stringify(session)+"123")
+  if (!accessToken || !_id || session!=accessToken){
+    throw new UnauthorizedException('UUID and accessToeken are required');
+  }
 
 
 //  if (!_id || !accessToken || (this.redisService.getSession(_id)==accessToken)) {

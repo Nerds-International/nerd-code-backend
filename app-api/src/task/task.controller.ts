@@ -1,14 +1,18 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, Query, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, HttpException, Query, HttpStatus, Headers,UnauthorizedException } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { AttemptService } from './attempt.service';
 import { PythonService } from './python.service';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
 import { CreateAttemptDto } from './dto/attempt.dto';
 import { Attempt } from './schemas/attempt.schema';
+import { RedisService } from 'src/redis/redis.service';
+
 
 @Controller('tasks')
 export class TaskController {
-  constructor(private readonly taskService: TaskService, private readonly pythonService: PythonService, private readonly attemptService: AttemptService) {}
+  constructor(private readonly taskService: TaskService, private readonly pythonService: PythonService, private readonly attemptService: AttemptService,
+  private readonly redisService: RedisService
+  ) {}
 
   @Post()
   createTask(@Body() createTaskDto: CreateTaskDto) {
@@ -21,22 +25,56 @@ export class TaskController {
   }
 
   @Get(':id')
-  getTaskById(@Param('id') id: string) {
-    return this.taskService.getTaskById(id);
+  async getTaskById(@Param('id') id: string,
+  @Headers('accessToken') accessToken: string,
+    @Headers('id') _id: string) {
+
+      const session = await this.redisService.getSession(_id);
+          
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+    return await this.taskService.getTaskById(id);
   }
 
   @Put(':id')
-  updateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
+  async updateTask(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto,
+  @Headers('accessToken') accessToken: string,
+    @Headers('id') _id: string) {
+
+      const session = await this.redisService.getSession(_id);
+          
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
     return this.taskService.updateTask(id, updateTaskDto);
   }
 
   @Delete(':id')
-  deleteTask(@Param('id') id: string) {
+  async deleteTask(@Param('id') id: string,
+  @Headers('accessToken') accessToken: string,
+    @Headers('id') _id: string) {
+
+      const session = await this.redisService.getSession(_id);
+          
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
     return this.taskService.deleteTask(id);
   }
 
   @Post('execute')
-async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: { input: string; expected: string }[]) {
+async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: { input: string; expected: string }[],
+@Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+          
+    if (!accessToken || !_id || session!=accessToken){
+      throw new UnauthorizedException('UUID and accessToeken are required');
+    }
+
   if (!code || !tests) {
     throw new HttpException('Code and tests are required', HttpStatus.BAD_REQUEST);
   }
@@ -50,17 +88,59 @@ async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: {
 }
 
   @Post('attempts')
-  async createAttempt(@Body() createAttemptDto: CreateAttemptDto): Promise<Attempt> {
-    return this.attemptService.createAttempt(createAttemptDto);
+  async createAttempt(@Body() createAttemptDto: CreateAttemptDto,
+  @Headers('accessToken') accessToken: string,
+    @Headers('id') _id: string): Promise<Attempt> {
+
+      const session = await this.redisService.getSession(_id);
+          
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    return await this.attemptService.createAttempt(createAttemptDto);
   }
 
   @Get('attempts')
-  async getAllAttempts(): Promise<Attempt[]> {
-    return this.attemptService.getAllAttempt();
+  async getAllAttempts(
+    @Headers('accessToken') accessToken: string,
+      @Headers('id') _id: string): Promise<Attempt[]> {
+
+      const session = await this.redisService.getSession(_id);
+          
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+    return await this.attemptService.getAllAttempt();
+  }
+
+  @Get('attemptsByUser')
+  async getAllAttemptsByUser(
+    @Headers('accessToken') accessToken: string,
+      @Headers('id') _id: string): Promise<Attempt[]> {
+
+      const session = await this.redisService.getSession(_id);
+          
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    const attempts = await this.attemptService.getAllAttempt();
+
+    return attempts.filter(it => it.user_id==_id);
   }
 
   @Get('attempts/:id')
-  async getAttemptById(@Param('id') id: string): Promise<Attempt> {
-    return this.attemptService.getAttemptById(id);
+  async getAttemptById(@Param('id') id: string,
+  @Headers('accessToken') accessToken: string,
+    @Headers('id') _id: string): Promise<Attempt> {
+
+      const session = await this.redisService.getSession(_id);
+          
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+      
+    return await this.attemptService.getAttemptById(id);
   }
 }

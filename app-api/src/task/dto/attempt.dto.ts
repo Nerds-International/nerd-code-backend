@@ -3,5 +3,6 @@ export class CreateAttemptDto {
     user_id: String
     language: String
     time: string;
+    result: string;
 }
   

@@ -9,7 +9,7 @@ export class RedisService {
 
   async updateSession(uuid: string, token: string) {
     
-    console.log(123)
+    console.log(uuid)
     const status = await this.cacheManager.set(uuid, token);
     console.log(JSON.stringify(status))
     // if (status) {
@@ -28,7 +28,7 @@ export class RedisService {
     // }
   }
 
-  async getSession(uuid: string): Promise<SessionDto> {
+  async getSession(uuid: string): Promise<String> {
     this.cacheManager.store.keys()
     return await this.cacheManager.get(uuid);
   }

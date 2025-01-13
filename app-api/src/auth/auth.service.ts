@@ -18,14 +18,14 @@ export class AuthService {
   async signUp(createUserDto: CreateUserDto) {
     const user = await this.userService.create(createUserDto);
     const tokens =this.generateTokens(user);
-    this.redisService.updateSession(tokens.id, JSON.stringify(user));
+    await this.redisService.updateSession(tokens.id, JSON.stringify(user));
     return tokens;
   }
 
   async signIn({ email, password }: { email: string; password: string }) {
     const user = await this.userService.validateUser(email, password);
     const tokens =this.generateTokens(user);
-    this.redisService.updateSession(tokens.id, JSON.stringify(user));
+    await this.redisService.updateSession(tokens.id, JSON.stringify(user));
     return tokens;
   }
 
@@ -75,9 +75,7 @@ export class AuthService {
     if (existingUser) {
       const user =await this.userService.findOneByEmail(oAuthUser.email)
       const tokens = this.generateTokens(user);
-      console.log(JSON.stringify(user))
-      await this.redisService.updateSession(tokens.id, JSON.stringify(user));
-      console.log(JSON.stringify(this.redisService.getKeys())+123)
+      await this.redisService.updateSession(tokens.id, tokens.accessToken);
       return this.generateTokens(await this.userService.findOneByEmail(oAuthUser.email));
     }
 
@@ -90,7 +88,7 @@ export class AuthService {
     });
 
     const tokens =this.generateTokens(newUser);
-    await this.redisService.updateSession(tokens.id, JSON.stringify(newUser));
+    await this.redisService.updateSession(tokens.id, tokens.accessToken);
 
     return tokens;
   }

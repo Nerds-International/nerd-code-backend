@@ -30,6 +30,7 @@ export class ForumsService {
       title: form.title,
       author_id: form.author_id,
       likes: form.likes,
+      dislikes: form.dislikes,
       created_at: form.created_at,
     };
   }
@@ -46,6 +47,18 @@ export class ForumsService {
 
   async findById(id: string): Promise<Forum> {
     return this.formModel.findById(id).exec();
+  }
+
+  async like(id: string): Promise<Forum> {
+    const form = await this.formModel.findById(id).exec();
+    form.likes += 1;
+    return form.save();
+  }
+
+  async dislike(id: string): Promise<Forum> {
+    const form = await this.formModel.findById(id).exec();
+    form.dislikes += 1;
+    return form.save();
   }
   
 }

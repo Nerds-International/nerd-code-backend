@@ -16,6 +16,10 @@ export class Forum extends Document {
   likes: number;
 
   @Prop()
+  dislikes: number;
+
+
+  @Prop()
   created_at: Date;
 
   @Prop([
