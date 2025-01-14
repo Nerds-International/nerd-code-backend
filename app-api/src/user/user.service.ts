@@ -74,7 +74,12 @@ export class UserService {
   async findByUuid(uuid: string): Promise<User> {
     const users = await this.userModel.find().exec();
 
-    const user= users.find(u => u._id === uuid);
+    console.log(JSON.stringify(users)
+    )
+
+    const user= users.find(u => u.id === uuid);
+
+    console.log(JSON.stringify(user))
     if (!user) {
       throw new BadRequestException('User with this UUID does not exist');
     }
