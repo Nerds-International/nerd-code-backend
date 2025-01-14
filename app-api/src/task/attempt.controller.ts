@@ -42,10 +42,13 @@ export class AttemptController {
   }
 
   @Get('attemptsByUser')
-  async getAllAttemptsByUser(@Param('taskId') taskId: string,
+  async getAllAttemptsByUser(@Headers('taskId') taskId: string,
     @Headers('accessToken') accessToken: string,
       @Headers('id') _id: string): Promise<Attempt[]> {
 
+        console.log(await this.attemptService.getAllAttempt())
+      console.log(taskId)
+      console.log(_id)
       const session = await this.redisService.getSession(_id);
           
       if (!accessToken || !_id || session!=accessToken){
@@ -54,7 +57,7 @@ export class AttemptController {
 
     const attempts = await this.attemptService.getAllAttempt();
 
-    return attempts.filter(it => it.user_id==_id).filter(it => it.task_id==taskId);
+    return attempts.filter(it => it.user_id==_id && it.task_id==taskId);
   }
 
   @Get('attempts/:id')
