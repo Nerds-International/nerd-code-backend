@@ -137,4 +137,30 @@ async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: {
       
     return await this.attemptService.getAttemptById(id);
   }
+
+  @Post(':id/like')
+  async like(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    return await this.taskService.like(id);
+  }
+
+  @Post(':id/dislike')
+  async dislike(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    return await this.taskService.dislike(id);
+  }
 }
