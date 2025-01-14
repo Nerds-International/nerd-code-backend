@@ -84,7 +84,7 @@ export class ForumesController {
         throw new UnauthorizedException('UUID and accessToeken are required');
       }
 
-    return await this.formsService.like(id);
+    return await this.formsService.like(id, 1);
   }
 
   @Post(':id/dislike')
@@ -97,7 +97,32 @@ export class ForumesController {
         throw new UnauthorizedException('UUID and accessToeken are required');
       }
 
-    return await this.formsService.dislike(id);
+    return await this.formsService.dislike(id, 1);
   }
 
+  @Post(':id/like')
+  async decrlike(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    return await this.formsService.like(id, -1);
+  }
+
+  @Post(':id/dislike')
+  async decrdislike(@Param('id') id: string, @Headers('accessToken') accessToken: string,
+  @Headers('id') _id: string) {
+
+    const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+    return await this.formsService.dislike(id, -1);
+  }
 }

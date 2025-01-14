@@ -76,13 +76,13 @@ export class TaskService {
     return randomTask;
   }
 
-  async like(id: string): Promise<Task> {
+  async like(id: string, incr: number): Promise<Task> {
       const form = await this.taskModel.findById(id).exec();
       form.likes += 1;
       return form.save();
     }
   
-    async dislike(id: string): Promise<Task> {
+    async dislike(id: string, incr: number): Promise<Task> {
       const form = await this.taskModel.findById(id).exec();
       form.dislikes += 1;
       return form.save();

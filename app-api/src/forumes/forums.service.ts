@@ -49,15 +49,15 @@ export class ForumsService {
     return this.formModel.findById(id).exec();
   }
 
-  async like(id: string): Promise<Forum> {
+  async like(id: string, incr: number): Promise<Forum> {
     const form = await this.formModel.findById(id).exec();
-    form.likes += 1;
+    form.likes += incr;
     return form.save();
   }
 
-  async dislike(id: string): Promise<Forum> {
+  async dislike(id: string, incr: number): Promise<Forum> {
     const form = await this.formModel.findById(id).exec();
-    form.dislikes += 1;
+    form.dislikes += incr;
     return form.save();
   }
   
