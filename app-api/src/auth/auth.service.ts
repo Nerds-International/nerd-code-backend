@@ -18,14 +18,14 @@ export class AuthService {
   async signUp(createUserDto: CreateUserDto) {
     const user = await this.userService.create(createUserDto);
     const tokens =this.generateTokens(user);
-    await this.redisService.updateSession(tokens.id, JSON.stringify(user));
+    await this.redisService.updateSession(tokens.id, tokens.accessToken);
     return tokens;
   }
 
   async signIn({ email, password }: { email: string; password: string }) {
     const user = await this.userService.validateUser(email, password);
     const tokens =this.generateTokens(user);
-    await this.redisService.updateSession(tokens.id, JSON.stringify(user));
+    await this.redisService.updateSession(tokens.id, tokens.accessToken);
     return tokens;
   }
 
@@ -36,7 +36,7 @@ export class AuthService {
     }
 
     const tokens =this.generateTokens(user);
-    this.redisService.updateSession(tokens.id, JSON.stringify(user));
+    this.redisService.updateSession(tokens.id, tokens.accessToken);
     return tokens;
   }
 

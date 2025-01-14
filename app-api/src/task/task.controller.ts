@@ -92,11 +92,11 @@ async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: {
   @Headers('accessToken') accessToken: string,
     @Headers('id') _id: string): Promise<Attempt> {
 
-      const session = await this.redisService.getSession(_id);
+    const session = await this.redisService.getSession(_id);
           
-      if (!accessToken || !_id || session!=accessToken){
-        throw new UnauthorizedException('UUID and accessToeken are required');
-      }
+    if (!accessToken || !_id || session!=accessToken){
+      throw new UnauthorizedException('UUID and accessToeken are required');
+    }
 
     return await this.attemptService.createAttempt(createAttemptDto);
   }

@@ -9,7 +9,7 @@ export class Task {
   title: string;
 
   @Prop({ required: true })
-  text: string;
+  description: string;
 
   @Prop({ required: true })
   author: string;

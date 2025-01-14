@@ -9,7 +9,7 @@ export class CreateTaskDto {
 
   title: string;
 
-  text: string;
+  description: string;
 
   author: string;
 
