@@ -12,8 +12,8 @@ import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [MongooseModule.forFeature([{ name: Task.name, schema: TaskSchema }]), MongooseModule.forFeature([{ name: Attempt.name, schema: AttemptSchema }]), RedisModule],
-  controllers: [TaskController],
-  providers: [TaskService, PythonService, AttemptService, AttemptController],
+  controllers: [TaskController, AttemptController],
+  providers: [TaskService, PythonService, AttemptService],
   exports: [TaskService, PythonService, AttemptService],
 })
 export class TaskModule {}
