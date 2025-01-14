@@ -109,7 +109,7 @@ async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: {
   }
 
   @Get('attemptsByUser')
-  async getAllAttemptsByUser(
+  async getAllAttemptsByUser(@Param('taskId') taskId: string,
     @Headers('accessToken') accessToken: string,
       @Headers('id') _id: string): Promise<Attempt[]> {
 
@@ -121,7 +121,7 @@ async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: {
 
     const attempts = await this.attemptService.getAllAttempt();
 
-    return attempts.filter(it => it.user_id==_id);
+    return attempts.filter(it => it.user_id==_id).filter(it => it.task_id==taskId);
   }
 
   @Get('attempts/:id')
