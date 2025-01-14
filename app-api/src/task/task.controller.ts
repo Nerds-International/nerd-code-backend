@@ -81,63 +81,6 @@ async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: {
   }
 }
 
-  @Post('attempts')
-  async createAttempt(@Body() createAttemptDto: CreateAttemptDto,
-  @Headers('accessToken') accessToken: string,
-    @Headers('id') _id: string): Promise<Attempt> {
-
-    const session = await this.redisService.getSession(_id);
-          
-    if (!accessToken || !_id || session!=accessToken){
-      throw new UnauthorizedException('UUID and accessToeken are required');
-    }
-
-    return await this.attemptService.createAttempt(createAttemptDto);
-  }
-
-  @Get('attempts')
-  async getAllAttempts(
-    @Headers('accessToken') accessToken: string,
-      @Headers('id') _id: string): Promise<Attempt[]> {
-
-      const session = await this.redisService.getSession(_id);
-          
-      if (!accessToken || !_id || session!=accessToken){
-        throw new UnauthorizedException('UUID and accessToeken are required');
-      }
-    return await this.attemptService.getAllAttempt();
-  }
-
-  @Get('attemptsByUser')
-  async getAllAttemptsByUser(@Param('taskId') taskId: string,
-    @Headers('accessToken') accessToken: string,
-      @Headers('id') _id: string): Promise<Attempt[]> {
-
-      const session = await this.redisService.getSession(_id);
-          
-      if (!accessToken || !_id || session!=accessToken){
-        throw new UnauthorizedException('UUID and accessToeken are required');
-      }
-
-    const attempts = await this.attemptService.getAllAttempt();
-
-    return attempts.filter(it => it.user_id==_id).filter(it => it.task_id==taskId);
-  }
-
-  @Get('attempts/:id')
-  async getAttemptById(@Param('id') id: string,
-  @Headers('accessToken') accessToken: string,
-    @Headers('id') _id: string): Promise<Attempt> {
-
-      const session = await this.redisService.getSession(_id);
-          
-      if (!accessToken || !_id || session!=accessToken){
-        throw new UnauthorizedException('UUID and accessToeken are required');
-      }
-      
-    return await this.attemptService.getAttemptById(id);
-  }
-
   @Post(':id/like')
   async like(@Param('id') id: string, @Headers('accessToken') accessToken: string,
   @Headers('id') _id: string) {
