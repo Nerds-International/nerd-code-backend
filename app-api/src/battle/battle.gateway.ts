@@ -11,6 +11,7 @@ import {
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { BattleService } from './battle.service';
+import { TaskService } from 'src/task/task.service';
 import { randomUUID } from 'crypto';
 
 @WebSocketGateway({ cors: false })
@@ -20,7 +21,10 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
 
   private logger: Logger = new Logger('BattleGateway');
 
-  constructor(private readonly battleService: BattleService) { }
+  constructor(
+    private readonly battleService: BattleService,
+    private readonly taskService: TaskService
+  ) { }
 
   afterInit(server: Server) {
     this.logger.log('Init');
@@ -63,10 +67,11 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
   }
 
   @SubscribeMessage('startMatch')
-  handleStartMatch(
+  async handleStartMatch(
     @MessageBody() battleId: string,
     @ConnectedSocket() client: Socket,
   ) {
     this.server.to(battleId).emit('opponentJoined', { battleId: battleId, id: client.id });
+    this.server.to(battleId).emit('task', { battleId: battleId, task: await this.taskService.getRandomTask() });
   }
 }
