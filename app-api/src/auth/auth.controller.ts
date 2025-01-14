@@ -73,6 +73,13 @@ export class AuthController {
   async getUserByUUID(@Req() req: Request, @Headers('accessToken') accessToken: string,
     @Headers('id') _id: string): Promise<User> {
 
+      const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+
       return this.authService.getUserByUUID(_id);
   }
 
