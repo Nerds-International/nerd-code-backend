@@ -6,7 +6,8 @@ import {
   Req, 
   Res, 
   UseGuards ,
-  UnauthorizedException
+  UnauthorizedException,
+  Headers
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
@@ -16,6 +17,7 @@ import { AuthDto } from './dto/auth.dto';
 import { AccessTokenGuard, RefreshTokenGuard } from './guards';
 import { AuthGuard } from '@nestjs/passport';
 import { RedisService } from 'src/redis/redis.service';
+import { User } from 'src/user/schemas/user.schema';
 
 @Controller('auth')
 export class AuthController {
@@ -65,6 +67,19 @@ export class AuthController {
   logOut(@Req() req: Request): void {
     const userId = req.user['sub'];
     this.authService.logOut(userId);
+  }
+
+  @Get('getUser')
+  async getUserByUUID(@Req() req: Request, @Headers('accessToken') accessToken: string,
+    @Headers('id') _id: string): Promise<User> {
+
+      const session = await this.redisService.getSession(_id);
+
+      if (!accessToken || !_id || session!=accessToken){
+        throw new UnauthorizedException('UUID and accessToeken are required');
+      }
+
+      return this.authService.getUserByUUID(_id);
   }
 
   @Get('github')

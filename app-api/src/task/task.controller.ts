@@ -28,12 +28,6 @@ export class TaskController {
   async getTaskById(@Param('id') id: string,
   @Headers('accessToken') accessToken: string,
     @Headers('id') _id: string) {
-
-      const session = await this.redisService.getSession(_id);
-          
-      if (!accessToken || !_id || session!=accessToken){
-        throw new UnauthorizedException('UUID and accessToeken are required');
-      }
     return await this.taskService.getTaskById(id);
   }
 

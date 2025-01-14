@@ -40,6 +40,10 @@ export class AuthService {
     return tokens;
   }
 
+  async getUserByUUID(uuid: string) {
+    return await this.userService.findByUuid(uuid);;
+  }
+
   async resetPassword({ email, password }: { email: string; password: string }) {
     await this.userService.updatePasswordByEmail(email, password);
   }
