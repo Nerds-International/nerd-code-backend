@@ -74,4 +74,14 @@ export class BattleGateway implements OnGatewayInit, OnGatewayConnection, OnGate
     this.server.to(battleId).emit('opponentJoined', { battleId: battleId, id: client.id });
     this.server.to(battleId).emit('task', { battleId: battleId, task: await this.taskService.getRandomTask() });
   }
+
+  @SubscribeMessage('endMatch')
+  handleEndMatch(
+    @MessageBody() battleId: string,
+    @ConnectedSocket() client: Socket,
+  ) {
+    console.log("Match ended " + battleId)
+    this.server.to(battleId).emit('outcome', { id: client.id });
+  }
+
 }
