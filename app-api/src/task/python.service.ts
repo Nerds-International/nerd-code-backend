@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 
 @Injectable()
 export class PythonService {
-  async executeCodeWithTests(functionCode: string, tests: { input: string; expected: string }[]): Promise<string> {
+  async executeCodeWithTests(functionCode: string, tests: { input: string; expected_output: string }[]): Promise<string> {
     // Формируем Python-код для проверки тестов
     const testRunner = `
 ${functionCode}
@@ -15,11 +15,11 @@ test_cases = ${JSON.stringify(tests)}
 
 for test in test_cases:
     input_data = eval(test['input'])
-    expected_output = eval(test['expected'])
+    expected_output = eval(test['expected_output'])
     try:
         actual_output = f(input_data)
         if actual_output != expected_output:
-            results.append(f"Test failed: input={test['input']}, expected={test['expected']}, got={actual_output}")
+            results.append(f"Test failed: input={test['input']}, expected={test['expected_output']}, got={actual_output}")
             failed = True
     except Exception as e:
         results.append(f"Test crashed: input={test['input']}, error={str(e)}")

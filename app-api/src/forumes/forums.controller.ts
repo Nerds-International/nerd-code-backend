@@ -100,7 +100,7 @@ export class ForumesController {
     return await this.formsService.dislike(id, 1);
   }
 
-  @Post(':id/like')
+  @Post(':id/decrlike')
   async decrlike(@Param('id') id: string, @Headers('accessToken') accessToken: string,
   @Headers('id') _id: string) {
 
@@ -113,7 +113,7 @@ export class ForumesController {
     return await this.formsService.like(id, -1);
   }
 
-  @Post(':id/dislike')
+  @Post(':id/decrdislike')
   async decrdislike(@Param('id') id: string, @Headers('accessToken') accessToken: string,
   @Headers('id') _id: string) {
 

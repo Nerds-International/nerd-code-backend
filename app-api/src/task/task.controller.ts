@@ -59,7 +59,7 @@ export class TaskController {
   }
 
   @Post('execute')
-async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: { input: string; expected: string }[],
+async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: { input: string; expected_output: string }[],
 @Headers('accessToken') accessToken: string,
   @Headers('id') _id: string) {
 
@@ -77,7 +77,7 @@ async executePythonWithTests(@Body('code') code: string, @Body('tests') tests: {
     const result = await this.pythonService.executeCodeWithTests(code, tests);
     return { success: true, result };
   } catch (error) {
-    throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    throw new HttpException(error.message.split("\n"), 200);
   }
 }
 
